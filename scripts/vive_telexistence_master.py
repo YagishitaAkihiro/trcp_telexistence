@@ -13,14 +13,9 @@ import rospy
 import math
 import tf
 from geometry_msgs.msg import Vector3
-#leap
-#__author__ = 'flier'
-
-#from leap_motion.msg import leap
-#from leap_motion.msg import leapros
 
 
-class Larm():
+class Tele():
       def quaternion_to_euler(self,rot):
              self.e = tf.transformations.euler_from_quaternion((rot[0], rot[1], rot[2], rot[3]))
              return Vector3(x=self.e[0], y=self.e[1], z=self.e[2])
@@ -33,36 +28,59 @@ class Larm():
          '''
          listener = tf.TransformListener()
          rospy.sleep(1)
-         #torsoから見たleft_hand_1の座標。ros::Time(0)指定して最新のtransformを取得。
+         #ros::Time(0)指定して最新のtransformを取得。
+         #controller1が左腕、controller2が右腕 という体にしてます。
          now = rospy.Time(0)
          try:
-          listener.waitForTransform("/world_vive", "/controller1", now, rospy.Duration(1.0))
-          listener.waitForTransform("/world_vive", "/hmd", now, rospy.Duration(1.0))
-          (l_trans,l_rot) = listener.lookupTransform('/world_vive', '/controller1', now)
-          (h_trans,h_rot) = listener.lookupTransform("/world_vive", "/hmd", now)
+             listener.waitForTransform("/world_vive", "/controller1", now, rospy.Duration(1.0))
+             listener.waitForTransform("/world_vive", "/controller2", now, rospy.Duration(1.0))
+             listener.waitForTransform("/world_vive", "/hmd", now, rospy.Duration(1.0))
+             (l_trans,l_rot) = listener.lookupTransform('/world_vive', '/controller1', now)
+             (r_trans,r_rot) = listener.lookupTransform('/world_vive', '/controller2', now)
+             (h_trans,h_rot) = listener.lookupTransform("/world_vive", "/hmd", now)
          except  (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-          print "tf error"
-         kX = -round(l_trans[2],2)
-         kY = -round(l_trans[0],2)
-         kZ =  round(l_trans[1],2)
+                  print "tf error"
+         lkX = -round(l_trans[2],2)
+         lkY = -round(l_trans[0],2)
+         lkZ =  round(l_trans[1],2)
 
-         HX = 0.3255
-         HY = 0.1823
-         HZ = 0.0746
+         rkX = -round(r_trans[2],2)
+         rkY = -round(r_trans[0],2)
+         rkZ =  round(r_trans[1],2)
 
-         x = -0.6
-         y = 0
-         z = -100
+
+         lHX = 0.3255
+         lHY = 0.1823
+         lHZ = 0.0746
+
+         lx = -0.6
+         ly = 0
+         lz = -100
+
+         rHX = -0.3255
+         rHY = 0.1823
+         rHZ = 0.0746
+
+         rx = 0.6
+         ry = 0
+         rz = -100
+
 #------------------------
          self.quaternion_to_euler(l_rot)
-         dx = round(self.e[2],1)
-         dy = round(self.e[1],1)
-         dz = round(self.e[0],1)
+         ldx = round(self.e[2],1)
+         ldy = round(self.e[1],1)
+         ldz = round(self.e[0],1)
+
+         self.quaternion_to_euler(r_rot)
+         rdx = round(self.e[2],1)
+         rdy = round(self.e[1],1)
+         rdz = round(self.e[0],1)
 
          roll_x = 0.0
          pitch_y = -1.6
          yaw_z = -0.05
          #0, -1.6, -0.05
+
          self.quaternion_to_euler(h_rot)
          c_head0 = -round(self.e[1],2)
          c_head1 = -round(self.e[0],2)
@@ -76,68 +94,72 @@ class Larm():
 #                  now = rospy.Time.now()
                   now = rospy.Time(0)
                   listener.waitForTransform("/world_vive", "/controller1", now, rospy.Duration(1.0))
+                  listener.waitForTransform("/world_vive", "/controller2", now, rospy.Duration(1.0))
                   listener.waitForTransform("/world_vive", "/hmd", now, rospy.Duration(1.0))
                   (l_trans,l_rot) = listener.lookupTransform("/world_vive", "/controller1", now)
+                  (r_trans,r_rot) = listener.lookupTransform("/world_vive", "/controller2", now)
                   (h_trans,h_rot) = listener.lookupTransform("/world_vive", "/hmd", now)
                except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                   continue
 
+#--------------generate_move_plan------------------------------
+               l_transx = lHX + (round(l_trans[2],2) + lkX)
+               l_transy = lHY + (round(l_trans[0],2) + lkY)
+               l_transz = lHZ + (round(l_trans[1],2) - lkZ)
 
-               l_transx = HX + (round(l_trans[2],2) + kX)
-               l_transy = HY + (round(l_trans[0],2) + kY)
-               l_transz = HZ + (round(l_trans[1],2) - kZ)
                self.quaternion_to_euler(l_rot)
-               rotx = roll_x  + round(self.e[0],1) - dx
-               roty = pitch_y -(round(self.e[1],1) - dy)
-               rotz = yaw_z   + round(self.e[2],1) - dz
+               lrotx = roll_x  + round(self.e[0],1) - ldx
+               lroty = pitch_y -(round(self.e[1],1) - ldy)
+               lrotz = yaw_z   + round(self.e[2],1) - ldz
+
+               r_transx = rHX + (round(r_trans[2],2) + rkX)
+               r_transy = rHY + (round(r_trans[0],2) + rkY)
+               r_transz = rHZ + (round(r_trans[1],2) - rkZ)
+
+               self.quaternion_to_euler(r_rot)
+               rrotx = roll_x  + round(self.e[0],1) - rdx
+               rroty = pitch_y -(round(self.e[1],1) - rdy)
+               rrotz = yaw_z   + round(self.e[2],1) - rdz
+
 
                self.quaternion_to_euler(h_rot)
                head0 = -round(self.e[1],2) - c_head0
-               head1 = round(self.e[0],2) - c_head1
-#              filter
-#               """
+               head1 =  round(self.e[0],2) - c_head1
+#-------------------------------------------------------------
+#filter
+
                if -0.292 > l_transx:
                   l_transx=-0.292
-#                  print "over x"
                if l_transx > 0.523:
                   l_transx=0.523
-#                  print "over x"
 
                if -0.150 > l_transy:
                   l_transy=-0.150
-#                  print "over y"
                if l_transy > 0.6:#0.501:
                   l_transy=0.6#0.501
-#                  print "over y"
 
-               if 0.050 > l_transz:
-                  l_transz=0.050
-#                  print "over z"
+               if -0.010 > l_transz:
+                  l_transz=-0.010
                if l_transz > 0.600:
                   l_transz=0.600
-#                  print "over z"
-               """
-               if rotx > 0.5:
-                  rotx=0.5
-                  print "over rotx"
-               if rotx < -0.5:
-                  rotx=-0.5
-                  print "over rotx"
-               if roty > 0.0:
-                  roty=0.0
-                  print "over roty"
-               if roty < -2.1:
-                  roty=-2.1
-                  print "over roty"
-               if rotz > 0.5:
-                  rotz=0.5
-                  print "over rotz"
-               if rotz < -0.5:
-                  rotz=0.5
-                  print "over rotz"
+#----------------------------------------
+               if 0.292 > r_transx:
+                  r_transx=0.292
+               if r_transx > -0.523:
+                  r_transx=-0.523
 
-               """
+               if -0.150 > r_transy:
+                  r_transy=-0.150
+               if r_transy > 0.6:#0.501:
+                  r_transy=0.6#0.501
 
+               if -0.010 r l_transz:
+                  r_transz=-0.010
+               if r_transz > 0.600:
+                  r_transz=0.600
+
+
+#--------------head_filter--------
                if head0 > 0.7:
                   head0 = 0.7
                if head0 < -0.7:
@@ -147,19 +169,28 @@ class Larm():
                   head1 = 0.3
                if head1 < -0.3:
                   head1 = -0.3
-               robot.setTargetPose("larm",[round((l_transx+x)/2,2),round((l_transy+y)/2,2),round((l_transz+z)/2,2)], [0.0, -1.6, -0.05],0.5)
-#               robot.setTargetPose("larm",[round((l_transx+x)/2,2),round((l_transy+y)/2,2),round((l_transz+z)/2,2)], [rotx,roty,rotz],0.3)
-               x = l_transx
-               y = l_transy
-               z = l_transz
 
-#               ros.set_joint_angles_rad("head",[round((b_head0 + head0)/2,3),round((b_head1 + head1)/2,3)],duration=0.2,wait=True)           
-               ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),0],duration=1.0,wait=False)           
-#               ros.set_joint_angles_rad("head",[0,round(b_head1 + head1)/2,2],duration=0.2,wait=False)
+#--------------move_hand----------
+               robot.setTargetPose("larm",[round((l_transx+lx)/2,2),round((l_transy+ly)/2,2),round((l_transz+lz)/2,2)], [0.0, -1.6, -0.05],0.5)
+               robot.setTargetPose("rarm",[round((r_transx+rx)/2,2),round((r_transy+ry)/2,2),round((r_transz+rz)/2,2)], [0.0, -1.6, -0.05],0.5)
+
+               
+#--------------filter_update------
+               lx = l_transx
+               ly = l_transy
+               lz = l_transz
+
+               rx = r_transx
+               ry = r_transy
+               rz = r_transz
+#-------------move_head-------------------------------
+#               ros.set_joint_angles_rad("head",[round((b_head0 + head0)/2,3),round((b_head1 + head1)/2,3)],duration=0.2,wait=True) 
+               ros.set_joint_angles_rad("head",[round((b_head0 + head0)/2,3),0],duration=0.4,wait=False)   
                b_head0 = head0
                b_head1 = head1
+
+#--------------wait_data-------
                rospy.sleep(0.5)
-               #rospy.sleep(0.03)
 
 if __name__ == '__main__':
 
@@ -188,8 +219,6 @@ if __name__ == '__main__':
 #   24行目の呼び出しの代用品
     ros = ROS_Client()
 #--------------------------------------------end_initial_setting------------------------------------------
-#   "robot."が使えるかのテストとして、jointをリストアップ    
-    robot.Groups
 #   主処理
-    Larm()
+    Tele()
     rospy.spin()

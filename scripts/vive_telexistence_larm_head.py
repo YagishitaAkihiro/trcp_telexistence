@@ -75,8 +75,8 @@ class Larm():
                   #torsoから見たleft_hand_1の座標。ros::Time(0)指定して最新のl_transformを取得。
 #                  now = rospy.Time.now()
                   now = rospy.Time(0)
-                  listener.waitForTransform("/purpose", "/controller1", now, rospy.Duration(1.0))
-                  listener.waitForTransform("/purpose", "/hmd", now, rospy.Duration(1.0))
+                  listener.waitForTransform("/purpose", "/controller1", now, rospy.Duration(100.0))
+                  listener.waitForTransform("/purpose", "/hmd", now, rospy.Duration(100.0))
                   (l_trans,l_rot) = listener.lookupTransform("/purpose", "/controller1", now)
                   (h_trans,h_rot) = listener.lookupTransform("/purpose", "/hmd", now)
                except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):

@@ -12,20 +12,31 @@
 
 ・scripts
  基本プログラムが入っている。
-
-　larm_pub2win.py: win機に関節角を送りつける左腕だけ実効する
- neck_move_trusty.py:首だけ実効
- telexistence_larm.py:左腕だけ実効する(現release)
- telexistence_larm_neck.py:左腕と首を実効する
- wii_chenger.py:wiiリモコンを用いて、手首まで追従することが可能。まだ左腕のみ。
- wii_chenger_exp.py:SIに提出する実験用
+ old_prog(昔の作ったプログラム)
+   　larm_pub2win.py: win機に関節角を送りつける左腕だけ実効する
+    neck_move_trusty.py:首だけ実効
+    telexistence_larm_neck.py:左腕と首を実効する
+    wii_chenger.py:wiiリモコンを用いて、手首まで追従することが可能。まだ左腕のみ。
+    wii_chenger_exp.py:SIに提出する実験用
+    telexistence_larm_mouse_head.py:HMDにマウスをくっつけた付け焼き刃系プログラム
+    tf_fix.py/tf_fix2.py: vive用に導入しようとしたtfのbroadcastプログラム。
+ ・rebuild_tele_tf.py:デバッグ中のvive用のテレイグジスタンス用のtf-broadcast用プログラム(後々cppにします。)
+ ・vive_telexistence_larm_head.py:viveによる左腕と頭を動かすやつ
+ ・vive_telexistence_master.py:viveによる頭と両腕ができる奴
 
 #----------------依存package---------------------------
-
-ros-indigo-hironx-*, wiimote, openni_tracker
+(新:現在必要なパッケージ)
+ros-indigo-hironx-*, 
+openvr(vive_rosが依存)
+vive_ros
 myo2dynamixel
+
+(旧：昔必要だったパッケージ)
+wiimote
+openni_tracker
 
 #-------update_log-------------------------------------
 3/22:このパッケージ作成
 3/23:telexistence_larm_neck.pyのデバッグ
 　　　　　wii_chenger_exp.pyの作成
+5/20:viveのテレイグジスタンスを正式にpushしました

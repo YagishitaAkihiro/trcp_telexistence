@@ -13,12 +13,19 @@ import rospy
 import math
 import tf
 from geometry_msgs.msg import Vector3
-#leap
-#__author__ = 'flier'
 
-#from leap_motion.msg import leap
-#from leap_motion.msg import leapros
+"""
+tf_tree
 
+base-|
+     vive_base-|
+               |-lh1:実装しているが、出力してない
+               |-lh2:実装しているが、出力してない
+               |-target
+               |-hmd_head
+               |-r_hand
+               |-l_hand
+"""
 
 class Larm():
       def quaternion_to_euler(self,rot):
@@ -33,13 +40,13 @@ class Larm():
          '''
          listener = tf.TransformListener()
          rospy.sleep(1)
-         #torsoから見たleft_hand_1の座標。ros::Time(0)指定して最新のtransformを取得。
+         #ros::Time(0)指定して最新のtransformを取得。
          now = rospy.Time(0)
          try:
-          listener.waitForTransform("/vive_world", "/controller1", now, rospy.Duration(10.0))
-          listener.waitForTransform("/vive_world", "/hmd", now, rospy.Duration(10.0))
-          (l_trans,l_rot) = listener.lookupTransform('/vive_world', '/controller1', now)
-          (h_trans,h_rot) = listener.lookupTransform("/vive_world", "/hmd", now)
+          listener.waitForTransform("/target", "/l_hand", now, rospy.Duration(10.0))
+          listener.waitForTransform("/target", "/hmd_head", now, rospy.Duration(10.0))
+          (l_trans,l_rot) = listener.lookupTransform("/target", '/l_hand', now)
+          (h_trans,h_rot) = listener.lookupTransform("/target", "/hmd_head", now)
          except  (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
           print "tf error"
          kX = -round(l_trans[2],2)
@@ -72,13 +79,12 @@ class Larm():
 #------------------------
          while not rospy.is_shutdown():
                try:
-                  #torsoから見たleft_hand_1の座標。ros::Time(0)指定して最新のl_transformを取得。
-#                  now = rospy.Time.now()
+                  #ros::Time(0)指定して最新のl_transformを取得。
                   now = rospy.Time(0)
-                  listener.waitForTransform("/vive_world", "/controller1", now, rospy.Duration(100.0))
-                  listener.waitForTransform("/vive_world", "/hmd", now, rospy.Duration(100.0))
-                  (l_trans,l_rot) = listener.lookupTransform("/vive_world", "/controller1", now)
-                  (h_trans,h_rot) = listener.lookupTransform("/vive_world", "/hmd", now)
+                  listener.waitForTransform("/target", "/l_hand", now, rospy.Duration(100.0))
+                  listener.waitForTransform("/target", "/hmd_head", now, rospy.Duration(100.0))
+                  (l_trans,l_rot) = listener.lookupTransform("/target", "/l_hand", now)
+                  (h_trans,h_rot) = listener.lookupTransform("/target", "/hmd_head", now)
                except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                   continue
 
@@ -188,8 +194,5 @@ if __name__ == '__main__':
 #   24行目の呼び出しの代用品
     ros = ROS_Client()
 #--------------------------------------------end_initial_setting------------------------------------------
-#   "robot."が使えるかのテストとして、jointをリストアップ    
-    robot.Groups
 #   主処理
     Larm()
-    rospy.spin()

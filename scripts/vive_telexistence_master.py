@@ -32,12 +32,12 @@ class Tele():
          #controller1が左腕、controller2が右腕 という体にしてます。
          now = rospy.Time(0)
          try:
-             listener.waitForTransform("/world_vive", "/controller1", now, rospy.Duration(1.0))
-             listener.waitForTransform("/world_vive", "/controller2", now, rospy.Duration(1.0))
-             listener.waitForTransform("/world_vive", "/hmd", now, rospy.Duration(1.0))
-             (l_trans,l_rot) = listener.lookupTransform('/world_vive', '/controller1', now)
-             (r_trans,r_rot) = listener.lookupTransform('/world_vive', '/controller2', now)
-             (h_trans,h_rot) = listener.lookupTransform("/world_vive", "/hmd", now)
+             listener.waitForTransform("/target", "/l_hand", now, rospy.Duration(1.0))
+             listener.waitForTransform("/target", "/r_hand", now, rospy.Duration(1.0))
+             listener.waitForTransform("/target", "/hmd_head", now, rospy.Duration(1.0))
+             (l_trans,l_rot) = listener.lookupTransform('/target', '/l_hand', now)
+             (r_trans,r_rot) = listener.lookupTransform('/target', '/r_hand', now)
+             (h_trans,h_rot) = listener.lookupTransform("/target", "/hmd_head", now)
          except  (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                   print "tf error"
          lkX = -round(l_trans[2],2)
@@ -93,12 +93,12 @@ class Tele():
                   #torsoから見たleft_hand_1の座標。ros::Time(0)指定して最新のl_transformを取得。
 #                  now = rospy.Time.now()
                   now = rospy.Time(0)
-                  listener.waitForTransform("/world_vive", "/controller1", now, rospy.Duration(1.0))
-                  listener.waitForTransform("/world_vive", "/controller2", now, rospy.Duration(1.0))
-                  listener.waitForTransform("/world_vive", "/hmd", now, rospy.Duration(1.0))
-                  (l_trans,l_rot) = listener.lookupTransform("/world_vive", "/controller1", now)
-                  (r_trans,r_rot) = listener.lookupTransform("/world_vive", "/controller2", now)
-                  (h_trans,h_rot) = listener.lookupTransform("/world_vive", "/hmd", now)
+                  listener.waitForTransform("/target", "/l_hand", now, rospy.Duration(10.0))
+                  listener.waitForTransform("/target", "/r_hand", now, rospy.Duration(10.0))
+                  listener.waitForTransform("/target", "/hmd_head", now, rospy.Duration(10.0))
+                  (l_trans,l_rot) = listener.lookupTransform("/target", "/l_hand", now)
+                  (r_trans,r_rot) = listener.lookupTransform("/target", "/r_hand", now)
+                  (h_trans,h_rot) = listener.lookupTransform("/target", "/hmd_head", now)
                except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                   continue
 
@@ -221,4 +221,3 @@ if __name__ == '__main__':
 #--------------------------------------------end_initial_setting------------------------------------------
 #   主処理
     Tele()
-    rospy.spin()

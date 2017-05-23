@@ -33,7 +33,7 @@ class MakeGet():
               self.listener.waitForTransform("/world_vive", "/hmd",         self.now, rospy.Duration(10.0))
               self.listener.waitForTransform("/world_vive", "/controller1", self.now, rospy.Duration(10.0))
               self.listener.waitForTransform("/world_vive", "/controller2", self.now, rospy.Duration(10.0))
-          except (tf.LookupException, tf.ConnectivityException, tf.ExtrapokationException):
+          except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
              print "error"
           print "connection complete"
 
@@ -81,8 +81,8 @@ class MakeGet():
              """
              try:
                 (t_trans,t_rot) = self.listener.lookupTransform("/lighthouse1", "/lighthouse2", self.now)
-                self.br.sendTransform((t_trans[0], t_trans[1], t_trans[2] ),
-                                      (t_rot[0],   t_rot[1],   t_rot[2],  t_rot[3]),
+                self.br.sendTransform((-t_trans[1], -1.0, t_trans[2]/3),
+                                      (0, 0, 0, 1),
                                       self.now,
                                       "/target",
                                       "/vive_base")

@@ -57,8 +57,8 @@ class Tele():
          ly = 0
          lz = -100
 
-         rHX = -0.3255
-         rHY = 0.1823
+         rHX = 0.3255
+         rHY = -0.1823
          rHZ = 0.0746
 
          rx = 0.6
@@ -143,17 +143,17 @@ class Tele():
                if l_transz > 0.600:
                   l_transz=0.600
 #----------------------------------------
-               if 0.292 > r_transx:
-                  r_transx=0.292
-               if r_transx > -0.523:
-                  r_transx=-0.523
+               if -0.292 > r_transx:
+                  r_transx=-0.292
+               if r_transx > 0.523:
+                  r_transx=0.523
 
-               if -0.150 > r_transy:
-                  r_transy=-0.150
-               if r_transy > 0.6:#0.501:
-                  r_transy=0.6#0.501
+               if 0.150 < r_transy:
+                  r_transy=0.150
+               if r_transy < -0.6:#0.501:
+                  r_transy=-0.6#0.501
 
-               if -0.010 r l_transz:
+               if -0.010 > l_transz:
                   r_transz=-0.010
                if r_transz > 0.600:
                   r_transz=0.600
@@ -184,7 +184,7 @@ class Tele():
                ry = r_transy
                rz = r_transz
 #-------------move_head-------------------------------
-#               ros.set_joint_angles_rad("head",[round((b_head0 + head0)/2,3),round((b_head1 + head1)/2,3)],duration=0.2,wait=True) 
+#               ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),round((b_head1 + head1)/2,3)],duration=0.2,wait=True) 
                ros.set_joint_angles_rad("head",[round((b_head0 + head0)/2,3),0],duration=0.4,wait=False)   
                b_head0 = head0
                b_head1 = head1

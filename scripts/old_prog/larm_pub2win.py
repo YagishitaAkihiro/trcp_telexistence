@@ -76,7 +76,7 @@ class Larm():
                try:
                   #torsoから見たleft_hand_1の座標。ros::Time(0)指定して最新のtransformを取得。
                   now = rospy.Time.now()
-                  listener.waitForTransform("/torso_1", "/right_hand_1", now, rospy.Duration(1.0))
+                  listener.waitForTransform("/torso_1", "/right_hand_1", now, rospy.Duration(1000.0))
                   (trans,rot) = listener.lookupTransform('/torso_1', '/right_hand_1', now)
 #                  rospy.Subscriber("/joint_states", JointState, self.callback, queue_size=1)
                except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):

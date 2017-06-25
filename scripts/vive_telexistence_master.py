@@ -185,7 +185,7 @@ class Tele():
                rz = r_transz
 #-------------move_head-------------------------------
 #               ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),round((b_head1 + head1)/2,3)],duration=0.2,wait=True) 
-               ros.set_joint_angles_rad("head",[round((b_head0 + head0)/2,3),0],duration=0.4,wait=False)   
+               ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),0],duration=0.4,wait=False)   
                b_head0 = head0
                b_head1 = head1
 

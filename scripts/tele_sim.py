@@ -43,11 +43,16 @@ class Rviz2telesim():
           rospy.Subscriber("/move_group/goal",MoveGroupActionGoal, self.callback, queue_size=1)
 
       def callback(self,data):
+          if len(data.goal.request.goal_constraints[0].joint_constraints) != 23:
+             self.angle_data = [0.0,0.0,0.0,
+                                0.0,0.0,0.0,0.0,0.0,0.0,
+                                0.0,0.0,0.0,0.0,0.0,0.0]
+
           #data.goal.request.goal_constraints[0].joint_constraints[x]のxがそれぞれの関節角になると思われる。
           #全角度を出すためには、rvizのplannning requestを"upperbody"にしなければならない。
           if data.goal.request.goal_constraints[0].joint_constraints[0].joint_name == "CHEST_JOINT0":
              for i in xrange(len(data.goal.request.goal_constraints[0].joint_constraints)):
-                self.angle_data[i] = data.goal.request.goal_constraints[0].joint_constraints[i].position
+                self.angle_data[i] = data.goal.request.goal_constraints[0].joint_constraints[i].joint_name + ":"+ str(data.goal.request.goal_constraints[0].joint_constraints[i].position)
              print self.angle_data
              self.pub.publish(str(self.angle_data))
           else:

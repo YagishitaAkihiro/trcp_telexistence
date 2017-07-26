@@ -97,6 +97,16 @@ class MakeGet():
                                       "/vive_base")
              except:
                  pass
+
+             try:
+#                (test_s,test_r) = self.listener.lookupTransform("/base", "/hmd", self.now)
+                 self.br.sendTransform((0.0, 0.0, -0.3 ),
+                                      (0,0,0,1),
+                                      self.now,
+                                      "/test",
+                                      "/hmd_head")
+             except:
+                  pass
              try:
                 (c1_ts,c1_rot) = self.listener.lookupTransform("/world_vive", "/controller1", self.now)
                 self.br.sendTransform((c1_ts[0], c1_ts[1], c1_ts[2] ),

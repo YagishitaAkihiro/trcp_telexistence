@@ -14,6 +14,7 @@ import math
 import tf
 from geometry_msgs.msg import Vector3
 
+from std_msgs.msg import String
 
 class Tele():
       def quaternion_to_euler(self,rot):
@@ -26,6 +27,9 @@ class Tele():
          @param nxo_if: type nextage_client.NextageClient         
          _robot = nxo_if 今回"ros = ROS_Client()"で代用できた。
          '''
+         #-----------------------------------         
+         self.pub = rospy.Publisher("plan_pose",String,queue_size=1)
+         #-----------------------------------
          listener = tf.TransformListener()
          rospy.sleep(1)
          #ros::Time(0)指定して最新のtransformを取得。
@@ -138,8 +142,8 @@ class Tele():
                if l_transy > 0.6:#0.501:
                   l_transy=0.6#0.501
 
-               if -0.010 > l_transz:
-                  l_transz=-0.010
+               if -0.0 > l_transz:
+                  l_transz= -0.0
                if l_transz > 0.600:
                   l_transz=0.600
 #----------------------------------------
@@ -153,8 +157,8 @@ class Tele():
                if r_transy < -0.6:#0.501:
                   r_transy=-0.6#0.501
 
-               if -0.010 > l_transz:
-                  r_transz=-0.010
+               if -0.0 > l_transz:
+                  r_transz=-0.0
                if r_transz > 0.600:
                   r_transz=0.600
 
@@ -172,9 +176,9 @@ class Tele():
 
 #--------------move_hand----------
                robot.setTargetPose("larm",[round((l_transx+lx)/2,2),round((l_transy+ly)/2,2),round((l_transz+lz)/2,2)], [0.0, -1.6, -0.05],0.5)
-               robot.setTargetPose("rarm",[round((r_transx+rx)/2,2),round((r_transy+ry)/2,2),round((r_transz+rz)/2,2)], [0.0, -1.6, -0.05],0.5)
+ #              robot.setTargetPose("rarm",[round((r_transx+rx)/2,2),round((r_transy+ry)/2,2),round((r_transz+rz)/2,2)], [0.0, -1.6, -0.05],0.5)
 
-               
+               pub_data = str(round((l_transx+lx)/2,2))+","+str(round((l_transy+ly)/2,2))+","+str(round((l_transz+lz)/2,2))+","+str(round((r_transx+rx)/2,2))+","+str(round((r_transy+ry)/2,2))+","+str(round((r_transz+rz)/2,2))+","
 #--------------filter_update------
                lx = l_transx
                ly = l_transy
@@ -188,7 +192,10 @@ class Tele():
                ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),0],duration=0.4,wait=False)   
                b_head0 = head0
                b_head1 = head1
+               
+               pub_data = pub_data + str(-round((b_head0 + head0)/2,3))+","+str(0.0)
 
+               self.pub.publish(pub_data)
 #--------------wait_data-------
                rospy.sleep(0.5)
 

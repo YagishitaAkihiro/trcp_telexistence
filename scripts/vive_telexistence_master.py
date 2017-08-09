@@ -14,45 +14,43 @@ import math
 import tf
 from geometry_msgs.msg import Vector3
 
-from std_msgs.msg import String
-
 class Tele():
       def quaternion_to_euler(self,rot):
              self.e = tf.transformations.euler_from_quaternion((rot[0], rot[1], rot[2], rot[3]))
              return Vector3(x=self.e[0], y=self.e[1], z=self.e[2])
-
 
       def __init__(self):
          '''
          @param nxo_if: type nextage_client.NextageClient         
          _robot = nxo_if 今回"ros = ROS_Client()"で代用できた。
          '''
-         #-----------------------------------         
-         self.pub = rospy.Publisher("plan_pose",String,queue_size=1)
-         #-----------------------------------
+#-------------------初期位置を取得-------------------------------------------------------------------
          listener = tf.TransformListener()
          rospy.sleep(1)
-         #ros::Time(0)指定して最新のtransformを取得。
-         #controller1が左腕、controller2が右腕 という体にしてます。
+         #rospy.Time(0)指定して最新のtransformを取得。
          now = rospy.Time(0)
          try:
+             rospy.loginfo("waiting hands and head tf")
              listener.waitForTransform("/target", "/l_hand", now, rospy.Duration(1.0))
              listener.waitForTransform("/target", "/r_hand", now, rospy.Duration(1.0))
              listener.waitForTransform("/target", "/hmd_head", now, rospy.Duration(1.0))
              (l_trans,l_rot) = listener.lookupTransform('/target', '/l_hand', now)
              (r_trans,r_rot) = listener.lookupTransform('/target', '/r_hand', now)
              (h_trans,h_rot) = listener.lookupTransform("/target", "/hmd_head", now)
+             rospy.loginfo("complete")
          except  (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                   print "tf error"
-         lkX = -round(l_trans[2],2)
-         lkY = -round(l_trans[0],2)
-         lkZ =  round(l_trans[1],2)
 
-         rkX = -round(r_trans[2],2)
-         rkY = -round(r_trans[0],2)
-         rkZ =  round(r_trans[1],2)
+         #最初の/target /... の距離
+         lkX = round(l_trans[2],2)
+         lkY = round(l_trans[0],2)
+         lkZ = round(l_trans[1],2)
 
+         rkX = round(r_trans[2],2)
+         rkY = round(r_trans[0],2)
+         rkZ = round(r_trans[1],2)
 
+         #hiroのinitial時のposition(そのうちlistにしなおす)
          lHX = 0.3255
          lHY = 0.1823
          lHZ = 0.0746
@@ -107,8 +105,8 @@ class Tele():
                   continue
 
 #--------------generate_move_plan------------------------------
-               l_transx = lHX + (round(l_trans[2],2) + lkX)
-               l_transy = lHY + (round(l_trans[0],2) + lkY)
+               l_transx = lHX - (round(l_trans[2],2) + lkX)
+               l_transy = lHY - (round(l_trans[0],2) - lkY)
                l_transz = lHZ + (round(l_trans[1],2) - lkZ)
 
                self.quaternion_to_euler(l_rot)
@@ -116,8 +114,8 @@ class Tele():
                lroty = pitch_y -(round(self.e[1],1) - ldy)
                lrotz = yaw_z   + round(self.e[2],1) - ldz
 
-               r_transx = rHX + (round(r_trans[2],2) + rkX)
-               r_transy = rHY + (round(r_trans[0],2) + rkY)
+               r_transx = rHX - (round(r_trans[2],2) + rkX)
+               r_transy = rHY - (round(r_trans[0],2) - rkY)
                r_transz = rHZ + (round(r_trans[1],2) - rkZ)
 
                self.quaternion_to_euler(r_rot)
@@ -128,9 +126,9 @@ class Tele():
 
                self.quaternion_to_euler(h_rot)
                head0 = -round(self.e[1],2) - c_head0
-               head1 =  round(self.e[0],2) - c_head1
+               head1 = -round(self.e[0],2) - c_head1
 #-------------------------------------------------------------
-#filter
+#filter  
 
                if -0.292 > l_transx:
                   l_transx=-0.292
@@ -175,10 +173,9 @@ class Tele():
                   head1 = -0.3
 
 #--------------move_hand----------
-               robot.setTargetPose("larm",[round((l_transx+lx)/2,2),round((l_transy+ly)/2,2),round((l_transz+lz)/2,2)], [0.0, -1.6, -0.05],0.5)
+ #              robot.setTargetPose("larm",[round((l_transx+lx)/2,2),round((l_transy+ly)/2,2),round((l_transz+lz)/2,2)], [0.0, -1.6, -0.05],0.5)
  #              robot.setTargetPose("rarm",[round((r_transx+rx)/2,2),round((r_transy+ry)/2,2),round((r_transz+rz)/2,2)], [0.0, -1.6, -0.05],0.5)
 
-               pub_data = str(round((l_transx+lx)/2,2))+","+str(round((l_transy+ly)/2,2))+","+str(round((l_transz+lz)/2,2))+","+str(round((r_transx+rx)/2,2))+","+str(round((r_transy+ry)/2,2))+","+str(round((r_transz+rz)/2,2))+","
 #--------------filter_update------
                lx = l_transx
                ly = l_transy
@@ -188,14 +185,11 @@ class Tele():
                ry = r_transy
                rz = r_transz
 #-------------move_head-------------------------------
-#               ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),round((b_head1 + head1)/2,3)],duration=0.2,wait=True) 
-               ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),0],duration=0.4,wait=False)   
+               ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),round((b_head1 + head1)/2,3)],duration=0.2,wait=True) 
+#               ros.set_joint_angles_rad("head",[-round((b_head0 + head0)/2,3),0],duration=0.4,wait=False)   
                b_head0 = head0
                b_head1 = head1
                
-               pub_data = pub_data + str(-round((b_head0 + head0)/2,3))+","+str(0.0)
-
-               self.pub.publish(pub_data)
 #--------------wait_data-------
                rospy.sleep(0.5)
 

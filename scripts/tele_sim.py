@@ -29,7 +29,8 @@ initial_anguler
 
 
 import rospy
-from moveit_msgs.msg import MoveGroupActionGoal
+from moveit_msgs.msg import MoveGroupActionGoal,PlanningScene
+
 from std_msgs.msg import String
 import sys
 
@@ -39,8 +40,11 @@ class Rviz2telesim():
           self.angle_data = [0.0,0.0,0.0,
                              0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
                              0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
-          self.pub = rospy.Publisher("/moveit_result", String, queue_size=1)
-          rospy.Subscriber("/move_group/goal",MoveGroupActionGoal, self.callback, queue_size=1)
+#          self.pub = rospy.Publisher("/moveit_result", String, queue_size=1)
+          rospy.Subscriber("/move_group/monitored_planning_scene",PlanningScene, self.cal, queue_size=1)
+
+      def cal(self,data):
+          print data.robot_state.joint_state.position
 
       def callback(self,data):
           if len(data.goal.request.goal_constraints[0].joint_constraints) != 23:

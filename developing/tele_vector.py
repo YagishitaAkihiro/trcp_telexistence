@@ -35,8 +35,8 @@ class Tele():
               rospy.loginfo("TF not broadcast")
           rospy.loginfo("complete")
           
-          initial_left = (-round(l_trans[2],2),-round(l_trans[0],2),round(l_trans[1],2))
-          initial_right= (-round(l_trans[2],2),-round(l_trans[0],2),round(l_trans[1],2))
+          initial_left = (round(l_trans[2],2),round(l_trans[0],2),round(l_trans[1],2))
+          initial_right= (round(l_trans[2],2),round(l_trans[0],2),round(l_trans[1],2))
 
 　　　　　　　　　　while not rospy.is_shutdown():
                 now = rospy.Time(0)
@@ -52,14 +52,18 @@ class Tele():
                 r_cur_p = robot.getCurrentPosition("RARM_JOINT5")
                 l_cur_p = robot.getCurrentPosition("LARM_JOINT5")
 　　　　　　　　　　　　　　　　
-                l_trans[2] + ini_p[0] #どれだけうごいたか 
-                l_trans[0] + ini_p[1]
-                l_trans[1] + ini_p[2]
+                L_dis = [l_trans[2] - ini_p[0], #どれだけうごいたか 
+                         l_trans[0] - ini_p[1],
+                         l_trans[1] - ini_p[2]]
 
-                r_trans[2] + ini_p[3]
-                r_trans[0] + ini_p[4]
-                r_trans[1] + ini_p[5]
+                R_dis = [r_trans[2] - ini_p[3],
+                         r_trans[0] - ini_p[4],
+                         r_trans[1] - ini_p[5]]
 
+                luvx = math.sqrt(math.pow(l_cur_p[0],2)+math.pow(ini_p[0]+L_dis[0],2))
+                luvy = math.sqrt(math.pow(l_cur_p[1],2)+math.pow(ini_p[1]+L_dis[1],2))
+                luvz = math.sqrt(math.pow(l_cur_p[2],2)+math.pow(ini_p[2]+L_dis[2],2))
+                ruv = math.sqrt(math.pow(,2)+math.pow(,2))
 #---------------------------------------------------------------------------------
 　　　　　　　　　　　　　　　　global ini_p
                 LTP = [,,]

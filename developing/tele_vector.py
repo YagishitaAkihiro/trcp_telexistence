@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-#from nextage_ros_bridge import nextage_client
+from nextage_ros_bridge import nextage_client
 from hrpsys import rtm
 from hironx_ros_bridge.ros_client import ROS_Client
 import argparse
@@ -38,7 +38,7 @@ class Tele():
           initial_left = (round(l_trans[2],2),round(l_trans[0],2),round(l_trans[1],2))
           initial_right= (round(l_trans[2],2),round(l_trans[0],2),round(l_trans[1],2))
 
-　　　　　　　　　　while not rospy.is_shutdown():
+          while not rospy.is_shutdown():
                 now = rospy.Time(0)
                 try:
                     (l_trans,l_rot) = listener.lookupTransform('/target', '/l_hand', now)
@@ -51,10 +51,10 @@ class Tele():
                 global ini_p
                 r_cur_p = robot.getCurrentPosition("RARM_JOINT5")
                 l_cur_p = robot.getCurrentPosition("LARM_JOINT5")
-　　　　　　　　　　　　　　　　
-                L_dis = [l_trans[2] - ini_p[0], #どれだけうごいたか 
-                         l_trans[0] - ini_p[1],
-                         l_trans[1] - ini_p[2]]
+
+                L_dis = [l_trans[2] - initial_left[0], #どれだけうごいたか 
+                         l_trans[0] - initial_left[1],
+                         l_trans[1] - initial_left[2]]
 
                 R_dis = [r_trans[2] - ini_p[3],
                          r_trans[0] - ini_p[4],
@@ -67,13 +67,19 @@ class Tele():
                                +math.pow(R_dis[1] + ini_p[4] - r_cur_p[1],2)
                                +math.pow(R_dis[2] + ini_p[5] - r_cur_p[2],2))
 #---------------------------------------------------------------------------------
-                LTP = [ini_p[0]+(L_dis[0]/luv),ini_p[1]+(L_dis[1]/luv),ini_p[2]+(L_dis[2]/luv)]
+                if luv <= 1.0:
+                   luv = 1.0
+#                print luv
+                LTP = [round(ini_p[0]+(L_dis[0]/luv),2),round(ini_p[1]+(L_dis[1]/luv),2),round(ini_p[2]+(L_dis[2]/luv),2)]
+                print LTP
+#                LTP = [ini_p[0],ini_p[1],ini_p[2]]
                 RTP = [ini_p[3]+(R_dis[0]/ruv),ini_p[4]+(R_dis[1]/ruv),ini_p[5]+(R_dis[2]/ruv)]
 #---------------------------------------------------------------------------------
                 global ini_ang
-                ros.set_pose("rarm",RTP,ini_ang,0.2)
+                robot.setTargetPose("larm",LTP, ini_ang,1)
+               # ros.set_pose("rarm",RTP,ini_ang,0.2)
                #ros.set_pose("larm",LTP,ini_ang,0.2)
-                rospy.sleep(0.2)
+                rospy.sleep(1.0)
 
 if __name__ == '__main__':
 

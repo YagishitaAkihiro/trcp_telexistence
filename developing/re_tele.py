@@ -14,6 +14,9 @@ from geometry_msgs.msg import Vector3
 ini_p = (0.3255, 0.1823, 0.0746, 0.3255, -0.1823, 0.0746)
 ini_f = [-0.6,   0.0,   -100.0,  0.6,     0.0,   -100.0]
 ini_ang = [0.0, -1.6, -0.05] #タプルにせねば。
+
+low_filter = [-0.6, 0.0, -100.0, 0.6, 0.0, -100.0]#ローパスフィルター用初期値
+
 class Tele():
       def q2e(self,rot):
           self.eul = tf.transformations.euler_from_quaternion((rot[0],rot[1],rot[2],rot[3]))
@@ -62,8 +65,10 @@ class Tele():
                          r_trans2[1] - ini_p[5]]
 
 #---------------------------------------------------------------------------------
-#                print luv
-                LTP = [round(ini_p[0]+(L_dis[0]),2),round(ini_p[1]+(L_dis[1]),2),round(ini_p[2]+(L_dis[2]),2)]
+                global low_filter
+                LTP = [round((ini_p[0]+L_dis[0]+low_filter[0])/2,2),
+                       round((ini_p[1]+L_dis[1]+low_filter[1])/2,2),
+                       round((ini_p[2]+L_dis[2]+low_filter[2])/2,2)]
 #                LTP = [ini_p[0],ini_p[1],ini_p[2]]
 #                RTP = [ini_p[3]+(R_dis[0]/ruv),ini_p[4]+(R_dis[1]/ruv),ini_p[5]+(R_dis[2]/ruv)]
  
@@ -89,6 +94,13 @@ class Tele():
                 #ros.set_pose("rarm",RTP,ini_ang,0.2)
 #                ros.set_pose("larm",LTP,ini_ang,1.0)
                 rospy.sleep(1.0)
+
+                low_filter[0] = ini_p[0]+L_dis[0]
+                low_filter[1] = ini_p[1]+L_dis[1]
+                low_filter[2] = ini_p[2]+L_dis[2]
+                low_filter[3] = ini_p[3]+L_dis[0]
+                low_filter[4] = ini_p[4]+L_dis[1]
+                low_filter[5] = ini_p[5]+L_dis[2]
 
 if __name__ == '__main__':
 

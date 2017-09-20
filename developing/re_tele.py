@@ -41,7 +41,7 @@ class Tele():
           rospy.loginfo("complete")
           
           initial_left = (round(l_trans[2],2),round(l_trans[0],2),round(l_trans[1],2))
-          initial_right= (round(l_trans[2],2),round(l_trans[0],2),round(l_trans[1],2))
+          initial_right= (round(r_trans[2],2),round(r_trans[0],2),round(r_trans[1],2))
           while not rospy.is_shutdown():
                 now = rospy.Time(0)
                 try:
@@ -53,24 +53,25 @@ class Tele():
 
 #---------------Vector------------------------------------------------------------------
                 global ini_p
-#                r_cur_p = robot.getCurrentPosition("RARM_JOINT5")
-#                l_cur_p = robot.getCurrentPosition("LARM_JOINT5")
 
                 L_dis = [-(l_trans2[2] - initial_left[0]), #どれだけうごいたか 
                          -(l_trans2[0] - initial_left[1]),
                           (l_trans2[1] - initial_left[2])]
 
-                R_dis = [r_trans2[2] - ini_p[3],
-                         r_trans2[0] - ini_p[4],
-                         r_trans2[1] - ini_p[5]]
+                R_dis = [-(r_trans2[2] - initial_right[0]), #どれだけうごいたか 
+                         -(r_trans2[0] - initial_right[1]),
+                          (r_trans2[1] - initial_right[2])]
 
 #---------------------------------------------------------------------------------
                 global low_filter
+
                 LTP = [round((ini_p[0]+L_dis[0]+low_filter[0])/2,2),
                        round((ini_p[1]+L_dis[1]+low_filter[1])/2,2),
                        round((ini_p[2]+L_dis[2]+low_filter[2])/2,2)]
-#                LTP = [ini_p[0],ini_p[1],ini_p[2]]
-#                RTP = [ini_p[3]+(R_dis[0]/ruv),ini_p[4]+(R_dis[1]/ruv),ini_p[5]+(R_dis[2]/ruv)]
+
+                RTP = [round((ini_p[3]+R_dis[0]+low_filter[3])/2,2),
+                       round((ini_p[4]+R_dis[1]+low_filter[4])/2,2),
+                       round((ini_p[5]+R_dis[2]+low_filter[5])/2,2)]
  
 #----------------------------------------------------
                 if -0.292 > LTP[0]:
@@ -88,19 +89,29 @@ class Tele():
                 if LTP[2] > 0.600:
                   LTP[2] =0.600
 
+                if -0.292 > RTP[0]:
+                   RTP[0] = 0.292
+                if RTP[0] > 0.523:
+                   RTP[0] = 0.523
+
+                if 0.150 < RTP[1]:
+                   RTP[1] = 0.150
+                if RTP[1] < -0.6:
+                   RTP[1] = -0.6
+
+                  
 #---------------------------------------------------------------------------------
                 global ini_ang
-                robot.setTargetPose("larm",LTP, ini_ang,1)
+                robot.setTargetPose("larm",LTP, ini_ang,0.3)
+                robot.setTargetPose("rarm",RTP, ini_ang,0.3)
                 #ros.set_pose("rarm",RTP,ini_ang,0.2)
 #                ros.set_pose("larm",LTP,ini_ang,1.0)
-                rospy.sleep(1.0)
+                rospy.sleep(0.3)
 
-                low_filter[0] = ini_p[0]+L_dis[0]
-                low_filter[1] = ini_p[1]+L_dis[1]
-                low_filter[2] = ini_p[2]+L_dis[2]
-                low_filter[3] = ini_p[3]+L_dis[0]
-                low_filter[4] = ini_p[4]+L_dis[1]
-                low_filter[5] = ini_p[5]+L_dis[2]
+                #ローパスフィルター_アップデート
+                r_cur_p = robot.getCurrentPosition("RARM_JOINT5")
+                l_cur_p = robot.getCurrentPosition("LARM_JOINT5")
+                low_filter = [l_cur_p[0], l_cur_p[1], l_cur_p[2], r_cur_p[0], r_cur_p[1], r_cur_p[2]]
 
 if __name__ == '__main__':
 
@@ -126,7 +137,6 @@ if __name__ == '__main__':
        args.modelfile = unknown[1]
     robot = nxc = nextage_client.NextageClient()
     robot.init(robotname=args.robot, url=args.modelfile)
-#   24行目の呼び出しの代用品
     ros = ROS_Client()
 #--------------------------------------------end_initial_setting------------------------------------------
 #   主処理

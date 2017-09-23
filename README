@@ -24,6 +24,8 @@
  ・vive_telexistence_larm_head.py:viveによる左腕と頭を動かすやつ
  ・vive_telexistence_master.py:viveによる頭と両腕ができる奴
 
+・developing
+ 現在開発中のプログラム。テストしてない場合も多々
 #----------------依存package---------------------------
 (新:現在必要なパッケージ)
 ros-indigo-hironx-*, 
@@ -40,3 +42,7 @@ openni_tracker
 3/23:telexistence_larm_neck.pyのデバッグ
 　　　　　wii_chenger_exp.pyの作成
 5/20:viveのテレイグジスタンスを正式にpushしました
+|
+|この間に色々fixしました(中身忘れた)
+|
+9/20:viveのテレイグプログラムをブラッシュアップしました。

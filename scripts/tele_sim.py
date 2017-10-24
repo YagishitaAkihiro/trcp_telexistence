@@ -27,31 +27,28 @@ initial_anguler
  0.0]          23 'LHAND_JOINT3'
 """
 
-
 import rospy
 from moveit_msgs.msg import MoveGroupActionGoal,PlanningScene
-
-from std_msgs.msg import String
+from std_msgs.msg import String, MultiArrayLayout, MultiArrayDimension, Float32MultiArray
 import sys
 
-class Rviz2telesim():
-      def __init__(self):
-          rospy.init_node("mp_publish")
-          self.angle_data = [0.0,0.0,0.0,
-                             0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-                             0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
-#          self.pub = rospy.Publisher("/moveit_result", String, queue_size=1)
-          rospy.Subscriber("/move_group/monitored_planning_scene",PlanningScene, self.cal, queue_size=1)
+mode = String()
 
-      def cal(self,data):
-          print data.robot_state.joint_state.position
+def main(mode):
+    rospy.init_node("mvit2win")
+    if mode == 1:
+       rospy.Subscriber("/move_group/goal",MoveGroupActionGoal, debag, queue_size=1)
+    else:
+       rospy.Subscriber("/move_group/goal",MoveGroupActionGoal, multiarray, queue_size=1)
+def debag(data):
+    print data.goal.request.goal_constraints[0].joint_constraints
 
-      def callback(self,data):
-          if len(data.goal.request.goal_constraints[0].joint_constraints) != 23:
-             self.angle_data = [0.0,0.0,0.0,
-                                0.0,0.0,0.0,0.0,0.0,0.0,
-                                0.0,0.0,0.0,0.0,0.0,0.0]
-
+def multiarray(data):
+    if len(data.goal.request.goal_constraints[0].joint_constraints) != 23:
+       angle_data = [0.0,0.0,0.0,
+                     0.0,0.0,0.0,0.0,0.0,0.0,
+                     0.0,0.0,0.0,0.0,0.0,0.0]
+       """
           #data.goal.request.goal_constraints[0].joint_constraints[x]のxがそれぞれの関節角になると思われる。
           #全角度を出すためには、rvizのplannning requestを"upperbody"にしなければならない。
           if data.goal.request.goal_constraints[0].joint_constraints[0].joint_name == "CHEST_JOINT0":
@@ -61,8 +58,21 @@ class Rviz2telesim():
              self.pub.publish(str(self.angle_data))
           else:
              print "rviz error! you must set upperbody of plannning request on rviz!"
-             
+          """   
 if __name__ == "__main__":
    print "start"
-   Rviz2telesim()
+   args = sys.argv
+   if not len(args) == 2:
+      print("args not found.")
+      sys.exit()
+   elif args[1] == "deb":
+      print "debag mode"
+      mode = 1
+   elif args[1] == "play":
+      print "main mode"
+      mode = 2
+   else:
+      print("bad args. Starting debag mode")
+      mode = 1
+   main(mode)
    rospy.spin()

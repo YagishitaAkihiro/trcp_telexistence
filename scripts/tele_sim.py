@@ -28,37 +28,31 @@ initial_anguler
 """
 
 import rospy
-from moveit_msgs.msg import MoveGroupActionGoal,PlanningScene
+#from moveit_msgs.msg import MoveGroupActionGoal,PlanningScene
 from std_msgs.msg import String, MultiArrayLayout, MultiArrayDimension, Float32MultiArray
+from control_msgs.msg import FollowJointTrajectoryActionGoal
 import sys
 
 mode = String()
+array = Float32MultiArray()
 
 def main(mode):
     rospy.init_node("mvit2win")
     if mode == 1:
-       rospy.Subscriber("/move_group/goal",MoveGroupActionGoal, debag, queue_size=1)
+       rospy.Subscriber("/larm_controller/follow_joint_trajectory_action/goal",FollowJointTrajectoryActionGoal, debag, queue_size=1)  
     else:
-       rospy.Subscriber("/move_group/goal",MoveGroupActionGoal, multiarray, queue_size=1)
+       rospy.Subscriber("/larm_controller/follow_joint_trajectory_action/goal",FollowJointTrajectoryActionGoal, multiarray, queue_size=1)
 def debag(data):
-    print data.goal.request.goal_constraints[0].joint_constraints
+    print data.goal.trajectory.points[-1].positions #左腕の関節を表示
 
 def multiarray(data):
-    if len(data.goal.request.goal_constraints[0].joint_constraints) != 23:
-       angle_data = [0.0,0.0,0.0,
-                     0.0,0.0,0.0,0.0,0.0,0.0,
-                     0.0,0.0,0.0,0.0,0.0,0.0]
-       """
-          #data.goal.request.goal_constraints[0].joint_constraints[x]のxがそれぞれの関節角になると思われる。
-          #全角度を出すためには、rvizのplannning requestを"upperbody"にしなければならない。
-          if data.goal.request.goal_constraints[0].joint_constraints[0].joint_name == "CHEST_JOINT0":
-             for i in xrange(len(data.goal.request.goal_constraints[0].joint_constraints)):
-                self.angle_data[i] = data.goal.request.goal_constraints[0].joint_constraints[i].joint_name + ":"+ str(data.goal.request.goal_constraints[0].joint_constraints[i].position)
-             print self.angle_data
-             self.pub.publish(str(self.angle_data))
-          else:
-             print "rviz error! you must set upperbody of plannning request on rviz!"
-          """   
+    print data.goal.trajectory.points[-1]
+    array.data = [1.0,2.0]
+    print array.data
+
+
+
+
 if __name__ == "__main__":
    print "start"
    args = sys.argv
@@ -68,7 +62,7 @@ if __name__ == "__main__":
    elif args[1] == "deb":
       print "debag mode"
       mode = 1
-   elif args[1] == "play":
+   elif args[1] == "main":
       print "main mode"
       mode = 2
    else:

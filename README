@@ -4,39 +4,20 @@
 
 #--------------それぞれのファイルの説明-----------------
 
-・msgディレクトリ
-　hironxの関節角度を出力する際に作ったメッセージ
- 腰（1）、首(2)、右腕(6)、左腕(6)
-　()内は自由度
- HANDなんてなかったんや！なので、handの角度はないです。
+・scripts 基本プログラムが入っている。以前までのファイルはold_progに設置
+・developing 現在開発中のプログラム。テストしてない場合も多々つまりのガバ御飯なプログラム
 
-・scripts
- 基本プログラムが入っている。
- old_prog(昔の作ったプログラム)
-   　larm_pub2win.py: win機に関節角を送りつける左腕だけ実効する
-    neck_move_trusty.py:首だけ実効
-    telexistence_larm_neck.py:左腕と首を実効する
-    wii_chenger.py:wiiリモコンを用いて、手首まで追従することが可能。まだ左腕のみ。
-    wii_chenger_exp.py:SIに提出する実験用
-    telexistence_larm_mouse_head.py:HMDにマウスをくっつけた付け焼き刃系プログラム
-    tf_fix.py/tf_fix2.py: vive用に導入しようとしたtfのbroadcastプログラム。
- ・rebuild_tele_tf.py:デバッグ中のvive用のテレイグジスタンス用のtf-broadcast用プログラム(後々cppにします。)
- ・vive_telexistence_larm_head.py:viveによる左腕と頭を動かすやつ
- ・vive_telexistence_master.py:viveによる頭と両腕ができる奴
-
-・developing
- 現在開発中のプログラム。テストしてない場合も多々
 #----------------依存package---------------------------
 (新:現在必要なパッケージ)
-ros-indigo-hironx-*, 
+ros-indigo-hironx-*(apt-getでは非推奨、gitからの方がよい)
 openvr(vive_rosが依存)
 vive_ros
-myo2dynamixel
+myo2dynamixel( https://github.com/yagishitaakihiro/myo2dynamixel.git 多分依存はないはず)
+steam(viveで必要)
 
-(旧：昔必要だったパッケージ)
+(旧：昔必要だったパッケージ昔の動かしたかったらこちらを)
 wiimote
 openni_tracker
-
 #-------update_log-------------------------------------
 3/22:このパッケージ作成
 3/23:telexistence_larm_neck.pyのデバッグ
@@ -46,3 +27,4 @@ openni_tracker
 |この間に色々fixしました(中身忘れた)
 |
 9/20:viveのテレイグプログラムをブラッシュアップしました。
+10/27:pub_win.py(windowsに関節角データを送るプログラム)をpush

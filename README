@@ -28,3 +28,4 @@ openni_tracker
 |
 9/20:viveのテレイグプログラムをブラッシュアップしました。
 10/27:pub_win.py(windowsに関節角データを送るプログラム)をpush
+12/8:viveが使用不能に(steamのライブラリの問題)、perception_neuronによる制御式をリリース

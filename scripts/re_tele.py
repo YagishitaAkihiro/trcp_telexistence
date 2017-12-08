@@ -30,12 +30,12 @@ class Tele():
           now = rospy.Time(0)
           rospy.loginfo("waiting hands and head tf")
           try:
-              listener.waitForTransform("/target", "/l_hand", now, rospy.Duration(1.0))
-              listener.waitForTransform("/target", "/r_hand", now, rospy.Duration(1.0))
-              listener.waitForTransform("/target", "/hmd_head", now, rospy.Duration(1.0))
-              (l_trans,l_rot) = listener.lookupTransform('/target', '/l_hand', now)
-              (r_trans,r_rot) = listener.lookupTransform('/target', '/r_hand', now)
-              (h_trans,h_rot) = listener.lookupTransform("/target", "/hmd_head", now)
+              listener.waitForTransform("/Spine", "/LeftHand", now, rospy.Duration(1.0))
+              listener.waitForTransform("/Spine", "/RightHand",now, rospy.Duration(1.0))
+              listener.waitForTransform("/Spine", "/Head", now, rospy.Duration(1.0))
+              (l_trans,l_rot) = listener.lookupTransform('/Spine', '/LeftHand', now)
+              (r_trans,r_rot) = listener.lookupTransform('/Spine', '/RightHand', now)
+              (h_trans,h_rot) = listener.lookupTransform("/Spine", "/Head", now)
           except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
               rospy.loginfo("TF not broadcast")
           rospy.loginfo("complete")
@@ -45,21 +45,21 @@ class Tele():
           while not rospy.is_shutdown():
                 now = rospy.Time(0)
                 try:
-                    (l_trans2,l_rot2) = listener2.lookupTransform('/target', '/l_hand', now)
-                    (r_trans2,r_rot2) = listener2.lookupTransform('/target', '/r_hand', now)
-                    (h_trans2,h_rot2) = listener2.lookupTransform("/target", "/hmd_head", now) 
+                    (l_trans2,l_rot2) = listener2.lookupTransform('/Spine', '/LeftHand', now)
+                    (r_trans2,r_rot2) = listener2.lookupTransform('/Spine', '/RightHand', now)
+                    (h_trans2,h_rot2) = listener2.lookupTransform("/Spine", "/Head", now) 
                 except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                     continue
 
 #---------------Vector------------------------------------------------------------------
                 global ini_p
 
-                L_dis = [-(l_trans2[2] - initial_left[0]), #どれだけうごいたか 
-                         -(l_trans2[0] - initial_left[1]),
-                          (l_trans2[1] - initial_left[2])]
+                L_dis = [(l_trans2[2] - initial_left[0]), #どれだけうごいたか 
+                         (l_trans2[0] - initial_left[1]),
+                         (l_trans2[1] - initial_left[2])]
 
-                R_dis = [-(r_trans2[2] - initial_right[0]), #どれだけうごいたか 
-                         -(r_trans2[0] - initial_right[1]),
+                R_dis = [(r_trans2[2] - initial_right[0]), #どれだけうごいたか 
+                         (r_trans2[0] - initial_right[1]),
                           (r_trans2[1] - initial_right[2])]
 
 #---------------------------------------------------------------------------------

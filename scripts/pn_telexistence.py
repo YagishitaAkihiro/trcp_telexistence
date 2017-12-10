@@ -15,6 +15,7 @@ ini_p = (0.3255, 0.1823, 0.0746, 0.3255, -0.1823, 0.0746)
 ini_f = [-0.6,   0.0,   -100.0,  0.6,     0.0,   -100.0]
 ini_ang = [0.0, -1.6, -0.05] #タプルにせねば。
 
+base_head=[0.0,0.0]
 low_filter = [-0.6, 0.0, -100.0, 0.6, 0.0, -100.0]#ローパスフィルター用初期値
 
 class Tele():
@@ -42,6 +43,9 @@ class Tele():
           
           initial_left = (round(l_trans[2],2),round(l_trans[0],2),round(l_trans[1],2))
           initial_right= (round(r_trans[2],2),round(r_trans[0],2),round(r_trans[1],2))
+
+          ini_head = self.q2e(h_rot)
+          initial_head = (ini_head[1],ini_head[0])
           while not rospy.is_shutdown():
                 now = rospy.Time(0)
                 try:
@@ -60,7 +64,7 @@ class Tele():
 
                 R_dis = [(r_trans2[2] - initial_right[0]), #どれだけうごいたか 
                          (r_trans2[0] - initial_right[1]),
-                          (r_trans2[1] - initial_right[2])]
+                         (r_trans2[1] - initial_right[2])]
 
 #---------------------------------------------------------------------------------
                 global low_filter
@@ -72,6 +76,12 @@ class Tele():
                 RTP = [round((ini_p[3]+R_dis[0]+low_filter[3])/2,2),
                        round((ini_p[4]+R_dis[1]+low_filter[4])/2,2),
                        round((ini_p[5]+R_dis[2]+low_filter[5])/2,2)]
+
+                global base_head
+                N_head_d = self.q2e(h_rot2)
+                N_head = [N_head_d[1],N_head_d[0]]
+                HeaD= [round(H_head[1]-initial_head[1]+base_head[1]/2,1),
+                       round(H_head[0]-initial_head[0]+base_head[0]/2,1)]
  
 #----------------------------------------------------
                 if -0.292 > LTP[0]:
@@ -98,7 +108,7 @@ class Tele():
                    RTP[1] = 0.150
                 if RTP[1] < -0.6:
                    RTP[1] = -0.6
-
+ 
                   
 #---------------------------------------------------------------------------------
                 global ini_ang
@@ -107,12 +117,13 @@ class Tele():
                 #ros.set_pose("rarm",RTP,ini_ang,0.2)
 #                ros.set_pose("larm",LTP,ini_ang,1.0)
                 rospy.sleep(0.3)
+                ros.set_joint_angles_rad("head",[HeaD[0],HeaD[1]],duration=0.3,wait=False) 
 
                 #ローパスフィルター_アップデート
                 r_cur_p = robot.getCurrentPosition("RARM_JOINT5")
                 l_cur_p = robot.getCurrentPosition("LARM_JOINT5")
                 low_filter = [l_cur_p[0], l_cur_p[1], l_cur_p[2], r_cur_p[0], r_cur_p[1], r_cur_p[2]]
-
+                base_head = [HeaD[0],Head[1]]
 if __name__ == '__main__':
 
 #-------------------------------------------initial_setting------------------------------------------

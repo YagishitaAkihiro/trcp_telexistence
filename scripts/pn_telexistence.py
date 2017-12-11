@@ -87,32 +87,32 @@ class Tele():
 #----------------------------------------------------
                 if -0.292 > LTP[0]: #前後
                   LTP[0] =-0.292
-                if LTP[0] > 0.523:
+                elif LTP[0] > 0.523:
                   LTP[0] =0.523
 
                 if -0.150 > LTP[1]:#左右
                   LTP[1] = -0.150
-                if LTP[1] > 0.6:#0.501:
+                elif LTP[1] > 0.6:#0.501:
                   LTP[1] = 0.6 #0.501
 
                 if -0.0 > LTP[2]:#上下
                   LTP[2] = -0.0
-                if LTP[2] > 0.600:
+                elif LTP[2] > 0.600:
                   LTP[2] =0.600
 
                 if -0.292 > RTP[0]:#前後
                    RTP[0] = 0.292
-                if RTP[0] > 0.523:
+                elif RTP[0] > 0.523:
                    RTP[0] = 0.523
 
                 if 0.150 < RTP[1]:#左右
                    RTP[1] = 0.150
-                if RTP[1] < -0.6:
+                elif RTP[1] < -0.6:
                    RTP[1] = -0.6
  
                 if -0.0 >RTP[2]: #上下
                    RTP[2]=-0.0
-                if RTP[2] > 0.600:
+                elif RTP[2] > 0.600:
                    RTP[2] = 0.600
 #----------------------------------------------------
                 if HeaD[0] < -0.3:
@@ -126,13 +126,12 @@ class Tele():
                      HeaD[1] = 0.3
 #---------------------------------------------------------------------------------
                 global ini_ang
-                robot.setTargetPose("larm",LTP, ini_ang,0.3)
-                robot.setTargetPose("rarm",RTP, ini_ang,0.3)
-                #ros.set_pose("rarm",RTP,ini_ang,0.2)
-#                ros.set_pose("larm",LTP,ini_ang,1.0)
-                rospy.sleep(0.3)
+#                robot.setTargetPose("larm",LTP, ini_ang,0.3)
+#                robot.setTargetPose("rarm",RTP, ini_ang,0.3)
+                ros.set_pose("rarm",RTP,ini_ang,0.3)
+                ros.set_pose("larm",LTP,ini_ang,0.3)
                 ros.set_joint_angles_rad("head",[HeaD[0],HeaD[1]],duration=0.3,wait=False) 
-
+                rospy.sleep(0.3)
                 #ローパスフィルター_アップデート
                 r_cur_p = robot.getCurrentPosition("RARM_JOINT5")
                 l_cur_p = robot.getCurrentPosition("LARM_JOINT5")

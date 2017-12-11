@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
+#軸の確認(忘却家なので、勘弁)
+#前後(赤)x,上下(緑)y,左右(青)z
 from nextage_ros_bridge import nextage_client
 from hrpsys import rtm
 from hironx_ros_bridge.ros_client import ROS_Client
@@ -15,13 +17,12 @@ ini_p = (0.3255, 0.1823, 0.0746, 0.3255, -0.1823, 0.0746)
 ini_f = [-0.6,   0.0,   -100.0,  0.6,     0.0,   -100.0]
 ini_ang = [0.0, -1.6, -0.05] #タプルにせねば。
 
-base_head=[0.0,0.0]
 low_filter = [-0.6, 0.0, -100.0, 0.6, 0.0, -100.0]#ローパスフィルター用初期値
 
 class Tele():
       def q2e(self,rot):
           self.eul = tf.transformations.euler_from_quaternion((rot[0],rot[1],rot[2],rot[3]))
-          return Vector(x=self.eul[0],y=self.eul[1],z=self.eul[2])
+          return Vector3(x=self.eul[0],y=self.eul[1],z=self.eul[2])
 
       def __init__(self):
           robot.goInitial()
@@ -45,7 +46,7 @@ class Tele():
           initial_right= (round(r_trans[2],2),round(r_trans[0],2),round(r_trans[1],2))
 
           ini_head = self.q2e(h_rot)
-          initial_head = (ini_head[1],ini_head[0])
+          initial_head = (ini_head.y,ini_head.x)
           while not rospy.is_shutdown():
                 now = rospy.Time(0)
                 try:
@@ -77,39 +78,52 @@ class Tele():
                        round((ini_p[4]+R_dis[1]+low_filter[4])/2,2),
                        round((ini_p[5]+R_dis[2]+low_filter[5])/2,2)]
 
-                global base_head
                 N_head_d = self.q2e(h_rot2)
-                N_head = [N_head_d[1],N_head_d[0]]
-                HeaD= [round(H_head[1]-initial_head[1]+base_head[1]/2,1),
-                       round(H_head[0]-initial_head[0]+base_head[0]/2,1)]
+                N_head = [N_head_d.y,N_head_d.x]
+
+                HeaD= [H_head[1]-initial_head[1],
+                       H_head[0]-initial_head[0]]
  
 #----------------------------------------------------
-                if -0.292 > LTP[0]:
+                if -0.292 > LTP[0]: #前後
                   LTP[0] =-0.292
                 if LTP[0] > 0.523:
                   LTP[0] =0.523
 
-                if -0.150 > LTP[1]:
+                if -0.150 > LTP[1]:#左右
                   LTP[1] = -0.150
                 if LTP[1] > 0.6:#0.501:
                   LTP[1] = 0.6 #0.501
 
-                if -0.0 > LTP[2]:
+                if -0.0 > LTP[2]:#上下
                   LTP[2] = -0.0
                 if LTP[2] > 0.600:
                   LTP[2] =0.600
 
-                if -0.292 > RTP[0]:
+                if -0.292 > RTP[0]:#前後
                    RTP[0] = 0.292
                 if RTP[0] > 0.523:
                    RTP[0] = 0.523
 
-                if 0.150 < RTP[1]:
+                if 0.150 < RTP[1]:#左右
                    RTP[1] = 0.150
                 if RTP[1] < -0.6:
                    RTP[1] = -0.6
  
-                  
+                if -0.0 >RTP[2]: #上下
+                   RTP[2]=-0.0
+                if RTP[2] > 0.600:
+                   RTP[2] = 0.600
+#----------------------------------------------------
+                if HeaD[0] < -0.3:
+                   HeaD[0] = -0.3
+                elif HeaD[0] > 0.3:
+                     HeaD[0] = 0.3
+
+                if HeaD[1] < -0.3:
+                   HeaD[1] = -0.3
+                elif HeaD[1] > 0.3:
+                     HeaD[1] = 0.3
 #---------------------------------------------------------------------------------
                 global ini_ang
                 robot.setTargetPose("larm",LTP, ini_ang,0.3)
